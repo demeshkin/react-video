@@ -26,6 +26,17 @@ module.exports = React.createClass({
     this.props.from === 'youtube' && this.fetchYoutubeData();
     this.props.from === 'vimeo' && this.fetchVimeoData();
   },
+  componentWillUnmount() {
+    this.abortRequest();
+  },
+  componentWillReceiveProps() {
+    this.abortRequest();
+  },
+  abortRequest() {
+    if (this.request) {
+      this.request.abort();
+    }
+  },
   render() {
     return (
       <div className={this.props.className} >
@@ -79,7 +90,7 @@ module.exports = React.createClass({
     var id = this.props.videoId;
     var url = `https://gdata.youtube.com/feeds/api/videos/${id}?v=2&alt=json`;
 
-    ajax.get(url, (err, res) => {
+    this.request = ajax.get(url, (err, res) => {
       var gallery = res.entry['media$group']['media$thumbnail'];
       var thumb = gallery.sort((a, b) => b.width - a.width)[0].url;
 
@@ -93,7 +104,7 @@ module.exports = React.createClass({
     var id = this.props.videoId;
     var url = `https://vimeo.com/api/v2/video/${id}.json`;
 
-    ajax.get(url, (err, res) => {
+    this.request = ajax.get(url, (err, res) => {
       this.setState({
         thumb: res[0].thumbnail_large,
         imageLoaded: true

@@ -16,6 +16,8 @@ var get = function(url, cb) {
   };
 
   req.send();
+
+  return req;
 };
 
 module.exports = { get: get };
