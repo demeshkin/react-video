@@ -72,7 +72,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  displayName: 'Video',
 	  propTypes: {
 	    from: React.PropTypes.oneOf(['youtube', 'vimeo']).isRequired,
-	    id: React.PropTypes.string.isRequired
+	    videoId: React.PropTypes.string.isRequired
 	  },
 	  getDefaultProps:function() {
 	    return {
@@ -89,6 +89,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  componentDidMount:function() {
 	    this.props.from === 'youtube' && this.fetchYoutubeData();
 	    this.props.from === 'vimeo' && this.fetchVimeoData();
+	  },
+	  componentWillUnmount:function() {
+	    this.abortRequest();
+	  },
+	  componentWillReceiveProps:function() {
+	    this.abortRequest();
+	  },
+	  abortRequest:function() {
+	    if (this.request) {
+	      this.request.abort();
+	    }
 	  },
 	  render:function() {
 	    return (
@@ -133,17 +144,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  },
 	  getIframeUrl:function() {
 	    if (this.props.from === 'youtube') {
-	      return ("//youtube.com/embed/" + this.props.id + "?autoplay=1")
+	      return ("//youtube.com/embed/" + this.props.videoId + "?autoplay=1")
 	    }
 	    else if (this.props.from === 'vimeo') {
-	      return ("//player.vimeo.com/video/" + this.props.id + "?autoplay=1")
+	      return ("//player.vimeo.com/video/" + this.props.videoId + "?autoplay=1")
 	    }
 	  },
 	  fetchYoutubeData:function() {
-	    var id = this.props.id;
+	    var id = this.props.videoId;
 	    var url = ("https://gdata.youtube.com/feeds/api/videos/" + id + "?v=2&alt=json");
 
-	    ajax.get(url, function(err, res)  {
+	    this.request = ajax.get(url, function(err, res)  {
 	      var gallery = res.entry['media$group']['media$thumbnail'];
 	      var thumb = gallery.sort(function(a, b)  {return b.width - a.width;})[0].url;
 
@@ -154,10 +165,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }.bind(this));
 	  },
 	  fetchVimeoData:function() {
-	    var id = this.props.id;
+	    var id = this.props.videoId;
 	    var url = ("https://vimeo.com/api/v2/video/" + id + ".json");
 
-	    ajax.get(url, function(err, res)  {
+	    this.request = ajax.get(url, function(err, res)  {
 	      this.setState({
 	        thumb: res[0].thumbnail_large,
 	        imageLoaded: true
@@ -214,6 +225,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 
 	  req.send();
+
+	  return req;
 	};
 
 	module.exports = { get: get };
