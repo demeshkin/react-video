@@ -147,7 +147,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return ("//youtube.com/embed/" + this.props.videoId + "?autoplay=1")
 	    }
 	    else if (this.props.from === 'vimeo') {
-	      return ("//player.vimeo.com/video/" + this.props.videoId + "?autoplay=1")
+	      return ("//player.vimeo.com/video/" + this.props.videoId + "?autoplay=1&autopause=0")
 	    }
 	  },
 	  fetchYoutubeData:function() {
